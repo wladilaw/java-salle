@@ -93,7 +93,3 @@ Le projet inclut les diagrammes UML suivants :
 
 - Alexis Derveaux (yxmmy)
 - Jules Machay (wladislawpl)
-
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails. 
