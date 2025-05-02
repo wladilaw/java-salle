@@ -1,0 +1,27 @@
+# Fichiers compilés
+target/
+*.class
+
+# Fichiers IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Fichiers de logs
+*.log
+
+# Fichiers de données
+*.json
+*.xml
+*.dat
+
+# Fichiers temporaires
+*.tmp
+*.temp 
