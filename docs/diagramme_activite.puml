@@ -1,0 +1,82 @@
+@startuml
+
+' Style du diagramme
+skinparam activity {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+}
+
+start
+
+:Menu Principal;
+
+if (Choix ?) then (Gestion Membres)
+    :Afficher menu membres;
+    if (Action ?) then (Ajouter)
+        :Saisir informations membre;
+        :Créer nouveau membre;
+        :Envoyer notification de bienvenue;
+    elseif (Action ?) then (Modifier)
+        :Sélectionner membre;
+        :Modifier informations;
+    elseif (Action ?) then (Supprimer)
+        :Sélectionner membre;
+        :Supprimer membre;
+    else (Afficher)
+        :Afficher liste des membres;
+    endif
+elseif (Choix ?) then (Gestion Cours)
+    :Afficher menu cours;
+    if (Action ?) then (Créer)
+        :Saisir informations cours;
+        :Sélectionner entraîneur;
+        :Créer nouveau cours;
+    elseif (Action ?) then (Modifier)
+        :Sélectionner cours;
+        :Modifier informations;
+    elseif (Action ?) then (Supprimer)
+        :Sélectionner cours;
+        :Supprimer cours;
+    else (Afficher)
+        :Afficher liste des cours;
+    endif
+elseif (Choix ?) then (Gestion Équipements)
+    :Afficher menu équipements;
+    if (Action ?) then (Ajouter Machine)
+        :Saisir informations machine;
+        :Ajouter machine;
+    elseif (Action ?) then (Ajouter Accessoire)
+        :Saisir informations accessoire;
+        :Ajouter accessoire;
+    elseif (Action ?) then (Modifier)
+        :Sélectionner équipement;
+        :Modifier informations;
+    elseif (Action ?) then (Supprimer)
+        :Sélectionner équipement;
+        :Supprimer équipement;
+    else (Afficher)
+        :Afficher liste des équipements;
+    endif
+elseif (Choix ?) then (Statistiques)
+    :Mettre à jour statistiques;
+    :Afficher statistiques;
+elseif (Choix ?) then (Notifications)
+    :Afficher menu notifications;
+    if (Action ?) then (Envoyer)
+        :Sélectionner destinataire;
+        :Saisir message;
+        :Envoyer notification;
+    elseif (Action ?) then (Afficher)
+        :Afficher notifications;
+    else (Marquer comme lues)
+        :Sélectionner notification;
+        :Marquer comme lue;
+    endif
+else (Quitter)
+    stop
+endif
+
+:Retour au menu principal;
+
+@enduml 

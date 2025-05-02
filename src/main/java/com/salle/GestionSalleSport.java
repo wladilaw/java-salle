@@ -21,6 +21,20 @@ public class GestionSalleSport {
     private static int dernierIdEquipement = 0;
     private static int dernierIdNotification = 0;
 
+    static {
+        // Ajout d'un entraîneur par défaut
+        Entraineur entraineur = new Entraineur(
+            909, // ID BVB09
+            "Dortmund",
+            "Coach",
+            "coach@bvb09.com",
+            "0123456789",
+            "Fitness"
+        );
+        entraineur.ajouterCertification("BVB09");
+        entraineurs.add(entraineur);
+    }
+
     public static void main(String[] args) {
         boolean continuer = true;
         while (continuer) {

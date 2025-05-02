@@ -1,0 +1,41 @@
+@startuml
+
+' Style du diagramme
+skinparam state {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+}
+
+' États de l'abonnement
+state "Abonnement" as Abonnement {
+    [*] --> ACTIF
+    ACTIF --> SUSPENDU : Paiement en retard
+    SUSPENDU --> ACTIF : Paiement effectué
+    ACTIF --> EXPIRE : Fin de période
+    EXPIRE --> [*] : Renouvellement
+}
+
+' États du cours
+state "Cours" as Cours {
+    [*] --> PLANIFIE
+    PLANIFIE --> EN_COURS : Début du cours
+    EN_COURS --> TERMINE : Fin du cours
+    PLANIFIE --> ANNULE : Annulation
+    EN_COURS --> ANNULE : Interruption
+    TERMINE --> [*]
+    ANNULE --> [*]
+}
+
+' États de l'équipement
+state "Équipement" as Equipement {
+    [*] --> DISPONIBLE
+    DISPONIBLE --> EN_UTILISATION : Utilisation
+    EN_UTILISATION --> DISPONIBLE : Retour
+    DISPONIBLE --> EN_MAINTENANCE : Maintenance
+    EN_MAINTENANCE --> DISPONIBLE : Réparation terminée
+    EN_MAINTENANCE --> HORS_SERVICE : Irréparable
+    HORS_SERVICE --> [*]
+}
+
+@enduml 

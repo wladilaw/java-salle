@@ -1,0 +1,75 @@
+@startuml
+
+' Style du diagramme
+skinparam sequence {
+    ArrowColor Black
+    LifeLineBorderColor Black
+    ParticipantBorderColor Black
+    ParticipantBackgroundColor White
+}
+
+actor Utilisateur
+participant "GestionSalleSport" as GSS
+participant "Membre" as M
+participant "Entraineur" as E
+participant "Cours" as C
+participant "Notification" as N
+participant "Statistiques" as S
+
+== Inscription d'un nouveau membre ==
+
+Utilisateur -> GSS : ajouterMembre()
+activate GSS
+GSS -> M : new Membre()
+activate M
+M --> GSS : membre créé
+deactivate M
+
+GSS -> N : new Notification()
+activate N
+N --> GSS : notification créée
+deactivate N
+
+GSS -> S : ajouterEvenement()
+activate S
+S --> GSS : événement ajouté
+deactivate S
+
+GSS --> Utilisateur : confirmation
+deactivate GSS
+
+== Création d'un cours ==
+
+Utilisateur -> GSS : creerCours()
+activate GSS
+GSS -> E : trouverEntraineur()
+activate E
+E --> GSS : entraineur trouvé
+deactivate E
+
+GSS -> C : new Cours()
+activate C
+C --> GSS : cours créé
+deactivate C
+
+GSS -> S : ajouterEvenement()
+activate S
+S --> GSS : événement ajouté
+deactivate S
+
+GSS --> Utilisateur : confirmation
+deactivate GSS
+
+== Consultation des statistiques ==
+
+Utilisateur -> GSS : afficherStatistiques()
+activate GSS
+GSS -> S : mettreAJourStatistiques()
+activate S
+S --> GSS : statistiques mises à jour
+deactivate S
+
+GSS --> Utilisateur : affichage des statistiques
+deactivate GSS
+
+@enduml 
