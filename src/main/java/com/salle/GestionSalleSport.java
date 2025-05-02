@@ -14,9 +14,12 @@ public class GestionSalleSport {
     private static List<Cours> cours = new ArrayList<>();
     private static List<Equipement> equipements = new ArrayList<>();
     private static List<Abonnement> abonnements = new ArrayList<>();
+    private static List<Notification> notifications = new ArrayList<>();
+    private static Statistiques statistiques = new Statistiques();
     private static int dernierIdMembre = 0;
     private static int dernierIdCours = 0;
     private static int dernierIdEquipement = 0;
+    private static int dernierIdNotification = 0;
 
     public static void main(String[] args) {
         boolean continuer = true;
@@ -35,6 +38,12 @@ public class GestionSalleSport {
                 case 3:
                     gererEquipements();
                     break;
+                case 4:
+                    afficherStatistiques();
+                    break;
+                case 5:
+                    gererNotifications();
+                    break;
                 case 0:
                     continuer = false;
                     System.out.println("Au revoir !");
@@ -51,6 +60,8 @@ public class GestionSalleSport {
         System.out.println("1. Gestion des membres");
         System.out.println("2. Gestion des cours");
         System.out.println("3. Gestion des équipements");
+        System.out.println("4. Statistiques");
+        System.out.println("5. Notifications");
         System.out.println("0. Quitter");
         System.out.print("Votre choix : ");
     }
@@ -92,10 +103,10 @@ public class GestionSalleSport {
         System.out.println("1. Créer un cours");
         System.out.println("2. Modifier un cours");
         System.out.println("3. Supprimer un cours");
-        System.out.println("4. Afficher tous les cours");
+        System.out.println("4. Afficher les cours");
         System.out.println("0. Retour");
         System.out.print("Votre choix : ");
-        
+
         int choix = scanner.nextInt();
         scanner.nextLine(); // Consommer le retour à la ligne
 
@@ -121,27 +132,31 @@ public class GestionSalleSport {
 
     private static void gererEquipements() {
         System.out.println("\n=== GESTION DES ÉQUIPEMENTS ===");
-        System.out.println("1. Ajouter un équipement");
-        System.out.println("2. Modifier un équipement");
-        System.out.println("3. Supprimer un équipement");
-        System.out.println("4. Afficher tous les équipements");
+        System.out.println("1. Ajouter une machine");
+        System.out.println("2. Ajouter un accessoire");
+        System.out.println("3. Modifier un équipement");
+        System.out.println("4. Supprimer un équipement");
+        System.out.println("5. Afficher les équipements");
         System.out.println("0. Retour");
         System.out.print("Votre choix : ");
-        
+
         int choix = scanner.nextInt();
         scanner.nextLine(); // Consommer le retour à la ligne
 
         switch (choix) {
             case 1:
-                ajouterEquipement();
+                ajouterMachine();
                 break;
             case 2:
-                modifierEquipement();
+                ajouterAccessoire();
                 break;
             case 3:
-                supprimerEquipement();
+                modifierEquipement();
                 break;
             case 4:
+                supprimerEquipement();
+                break;
+            case 5:
                 afficherEquipements();
                 break;
             case 0:
@@ -154,22 +169,17 @@ public class GestionSalleSport {
     // Méthodes pour la gestion des membres
     private static void ajouterMembre() {
         System.out.println("\n=== AJOUT D'UN MEMBRE ===");
-        
         System.out.print("Nom : ");
         String nom = scanner.nextLine();
-        
         System.out.print("Prénom : ");
         String prenom = scanner.nextLine();
-        
         System.out.print("Email : ");
         String email = scanner.nextLine();
-        
         System.out.print("Téléphone : ");
         String telephone = scanner.nextLine();
-        
         System.out.print("Type d'abonnement (MENSUEL/ANNUEL) : ");
         String typeAbonnement = scanner.nextLine().toUpperCase();
-        
+
         Membre membre = new Membre(
             ++dernierIdMembre,
             nom,
@@ -181,6 +191,17 @@ public class GestionSalleSport {
         );
         
         membres.add(membre);
+        
+        // Créer une notification de bienvenue
+        Notification notification = new Notification(
+            ++dernierIdNotification,
+            "Bienvenue à la salle de sport ! Votre inscription a été validée.",
+            "INFO",
+            membre
+        );
+        notifications.add(notification);
+        
+        statistiques.ajouterEvenement("Nouveau membre inscrit : " + membre.getNom());
         System.out.println("Membre ajouté avec succès !");
     }
 
@@ -250,84 +271,102 @@ public class GestionSalleSport {
     // Méthodes pour la gestion des cours
     private static void creerCours() {
         System.out.println("\n=== CRÉATION D'UN COURS ===");
-        
-        System.out.print("Nom du cours : ");
+        System.out.print("Nom : ");
         String nom = scanner.nextLine();
-        
         System.out.print("Description : ");
         String description = scanner.nextLine();
-        
         System.out.print("Prix : ");
         double prix = scanner.nextDouble();
         scanner.nextLine(); // Consommer le retour à la ligne
-        
-        System.out.print("Date et heure (format: dd/MM/yyyy HH:mm) : ");
-        String dateStr = scanner.nextLine();
-        LocalDateTime dateHeure = LocalDateTime.parse(dateStr, 
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-        
         System.out.print("Durée (en minutes) : ");
         int duree = scanner.nextInt();
         scanner.nextLine(); // Consommer le retour à la ligne
-        
         System.out.print("Capacité maximale : ");
         int capaciteMax = scanner.nextInt();
         scanner.nextLine(); // Consommer le retour à la ligne
-        
+
         System.out.print("ID de l'entraîneur : ");
         int idEntraineur = scanner.nextInt();
         scanner.nextLine(); // Consommer le retour à la ligne
-        
-        Entraineur entraineur = trouverEntraineur(idEntraineur);
+
+        Entraineur entraineur = entraineurs.stream()
+            .filter(e -> e.getId() == idEntraineur)
+            .findFirst()
+            .orElse(null);
+
         if (entraineur != null) {
-            Cours cours = new Cours(
+            Cours nouveauCours = new Cours(
                 ++dernierIdCours,
                 nom,
                 description,
                 prix,
-                dateHeure,
+                LocalDateTime.now(),
                 duree,
                 capaciteMax,
                 entraineur
             );
-            
-            this.cours.add(cours);
-            entraineur.ajouterCours(cours);
+            cours.add(nouveauCours);
+            statistiques.ajouterEvenement("Nouveau cours créé : " + nom);
             System.out.println("Cours créé avec succès !");
         } else {
             System.out.println("Entraîneur non trouvé !");
         }
     }
 
-    private static Entraineur trouverEntraineur(int id) {
-        return entraineurs.stream()
-                .filter(e -> e.getId() == id)
-                .findFirst()
-                .orElse(null);
-    }
-
-    // Méthodes pour la gestion des équipements
-    private static void ajouterEquipement() {
-        System.out.println("\n=== AJOUT D'UN ÉQUIPEMENT ===");
-        System.out.println("1. Machine");
-        System.out.println("2. Accessoire");
-        System.out.print("Votre choix : ");
-        
-        int choix = scanner.nextInt();
+    private static void modifierCours() {
+        System.out.print("ID du cours à modifier : ");
+        int id = scanner.nextInt();
         scanner.nextLine(); // Consommer le retour à la ligne
 
-        switch (choix) {
-            case 1:
-                ajouterMachine();
-                break;
-            case 2:
-                ajouterAccessoire();
-                break;
-            default:
-                System.out.println("Choix invalide !");
+        Cours coursAModifier = cours.stream()
+            .filter(c -> c.getId() == id)
+            .findFirst()
+            .orElse(null);
+
+        if (coursAModifier != null) {
+            System.out.print("Nouveau nom du cours : ");
+            String nom = scanner.nextLine();
+            System.out.print("Nouvelle description : ");
+            String description = scanner.nextLine();
+            System.out.print("Nouvelle durée (en minutes) : ");
+            int duree = scanner.nextInt();
+            scanner.nextLine(); // Consommer le retour à la ligne
+
+            coursAModifier.setNom(nom);
+            coursAModifier.setDescription(description);
+            coursAModifier.setDuree(duree);
+
+            statistiques.ajouterEvenement("Cours modifié : " + nom);
+            System.out.println("Cours modifié avec succès !");
+        } else {
+            System.out.println("Cours non trouvé !");
         }
     }
 
+    private static void supprimerCours() {
+        System.out.print("ID du cours à supprimer : ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour à la ligne
+
+        boolean supprime = cours.removeIf(c -> c.getId() == id);
+        if (supprime) {
+            statistiques.ajouterEvenement("Cours supprimé (ID: " + id + ")");
+            System.out.println("Cours supprimé avec succès !");
+        } else {
+            System.out.println("Cours non trouvé !");
+        }
+    }
+
+    private static void afficherCours() {
+        System.out.println("\n=== LISTE DES COURS ===");
+        if (cours.isEmpty()) {
+            System.out.println("Aucun cours disponible.");
+        } else {
+            cours.forEach(System.out::println);
+        }
+    }
+
+    // Méthodes pour la gestion des équipements
     private static void ajouterMachine() {
         System.out.print("Nom : ");
         String nom = scanner.nextLine();
@@ -408,14 +447,157 @@ public class GestionSalleSport {
         System.out.println("Accessoire ajouté avec succès !");
     }
 
+    private static void modifierEquipement() {
+        System.out.print("ID de l'équipement à modifier : ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour à la ligne
+
+        Equipement equipementAModifier = equipements.stream()
+            .filter(e -> e.getId() == id)
+            .findFirst()
+            .orElse(null);
+
+        if (equipementAModifier != null) {
+            System.out.print("Nouveau nom : ");
+            String nom = scanner.nextLine();
+            System.out.print("Nouvelle description : ");
+            String description = scanner.nextLine();
+            System.out.print("Nouveau prix : ");
+            double prix = scanner.nextDouble();
+            scanner.nextLine(); // Consommer le retour à la ligne
+
+            equipementAModifier.setNom(nom);
+            equipementAModifier.setDescription(description);
+            equipementAModifier.setPrix(prix);
+
+            statistiques.ajouterEvenement("Équipement modifié : " + nom);
+            System.out.println("Équipement modifié avec succès !");
+        } else {
+            System.out.println("Équipement non trouvé !");
+        }
+    }
+
+    private static void supprimerEquipement() {
+        System.out.print("ID de l'équipement à supprimer : ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour à la ligne
+
+        boolean supprime = equipements.removeIf(e -> e.getId() == id);
+        if (supprime) {
+            statistiques.ajouterEvenement("Équipement supprimé (ID: " + id + ")");
+            System.out.println("Équipement supprimé avec succès !");
+        } else {
+            System.out.println("Équipement non trouvé !");
+        }
+    }
+
     private static void afficherEquipements() {
         System.out.println("\n=== LISTE DES ÉQUIPEMENTS ===");
         if (equipements.isEmpty()) {
-            System.out.println("Aucun équipement enregistré.");
+            System.out.println("Aucun équipement disponible.");
         } else {
-            for (Equipement equipement : equipements) {
-                System.out.println(equipement);
-            }
+            equipements.forEach(System.out::println);
         }
+    }
+
+    private static void afficherStatistiques() {
+        statistiques.mettreAJourStatistiques(membres, cours, equipements);
+        System.out.println(statistiques);
+    }
+
+    private static void gererNotifications() {
+        System.out.println("\n=== GESTION DES NOTIFICATIONS ===");
+        System.out.println("1. Envoyer une notification");
+        System.out.println("2. Afficher les notifications");
+        System.out.println("3. Marquer comme lues");
+        System.out.println("0. Retour");
+        System.out.print("Votre choix : ");
+
+        int choix = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour à la ligne
+
+        switch (choix) {
+            case 1:
+                envoyerNotification();
+                break;
+            case 2:
+                afficherNotifications();
+                break;
+            case 3:
+                marquerNotificationsLues();
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("Choix invalide.");
+        }
+    }
+
+    private static void envoyerNotification() {
+        System.out.print("ID du membre destinataire : ");
+        int idMembre = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour à la ligne
+
+        Membre destinataire = trouverMembre(idMembre);
+        if (destinataire != null) {
+            System.out.println("Type de notification :");
+            System.out.println("1. INFO");
+            System.out.println("2. ALERTE");
+            System.out.println("3. RAPPEL");
+            System.out.print("Votre choix : ");
+            
+            int typeChoix = scanner.nextInt();
+            scanner.nextLine(); // Consommer le retour à la ligne
+            
+            String type = "";
+            switch (typeChoix) {
+                case 1: type = "INFO"; break;
+                case 2: type = "ALERTE"; break;
+                case 3: type = "RAPPEL"; break;
+                default: type = "INFO";
+            }
+
+            System.out.print("Message : ");
+            String message = scanner.nextLine();
+
+            Notification notification = new Notification(
+                ++dernierIdNotification,
+                message,
+                type,
+                destinataire
+            );
+
+            notifications.add(notification);
+            statistiques.ajouterEvenement("Nouvelle notification envoyée à " + destinataire.getNom());
+            System.out.println("Notification envoyée avec succès !");
+        } else {
+            System.out.println("Membre non trouvé !");
+        }
+    }
+
+    private static void afficherNotifications() {
+        System.out.println("\n=== NOTIFICATIONS ===");
+        if (notifications.isEmpty()) {
+            System.out.println("Aucune notification.");
+        } else {
+            notifications.forEach(System.out::println);
+        }
+    }
+
+    private static void marquerNotificationsLues() {
+        System.out.print("ID de la notification à marquer comme lue : ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour à la ligne
+
+        notifications.stream()
+            .filter(n -> n.getId() == id)
+            .findFirst()
+            .ifPresentOrElse(
+                n -> {
+                    n.setLue(true);
+                    System.out.println("Notification marquée comme lue.");
+                },
+                () -> System.out.println("Notification non trouvée.")
+            );
     }
 } 
