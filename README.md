@@ -91,7 +91,8 @@ Le projet inclut les diagrammes UML suivants :
 
 ## 👥 Auteurs
 
-- Votre nom
+- Alexis Derveaux (yxmmy)
+- Jules Machay (wladislawpl)
 
 ## 📄 Licence
 
