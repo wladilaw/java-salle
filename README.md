@@ -48,7 +48,7 @@ src/
 
 1. Cloner le dépôt :
 ```bash
-git clone https://github.com/votre-username/gestion-salle-sport.git
+git clone https://github.com/wladilaw/gestion-salle-sport.git
 ```
 
 2. Compiler le projet avec Maven :
