@@ -89,6 +89,7 @@ Le projet inclut les diagrammes UML suivants :
 - Diagramme de cas d'utilisation
 - Diagrammes de séquence
 - Diagramme d'état
+- Fait avec une ia et des aides sur youtubes pour comprendre 
 
 ## 👥 Auteurs
 
