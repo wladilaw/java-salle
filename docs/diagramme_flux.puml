@@ -1,0 +1,43 @@
+@startuml
+
+' Style du diagramme
+skinparam activity {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+}
+
+start
+
+:Saisir informations du membre;
+
+if (Validation des données ?) then (valide)
+    :Créer nouveau membre;
+    :Générer ID unique;
+    
+    if (Type d'abonnement ?) then (Standard)
+        :Créer abonnement standard;
+    elseif (Type d'abonnement ?) then (Premium)
+        :Créer abonnement premium;
+    else (VIP)
+        :Créer abonnement VIP;
+    endif
+    
+    :Enregistrer dans la base de données;
+    :Créer notification de bienvenue;
+    
+    if (Envoi de confirmation ?) then (oui)
+        :Envoyer email de confirmation;
+    else (non)
+        :Afficher confirmation à l'écran;
+    endif
+    
+    :Afficher informations du membre;
+else (invalide)
+    :Afficher erreurs de validation;
+    :Retour à la saisie;
+endif
+
+stop
+
+@enduml 

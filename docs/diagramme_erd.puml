@@ -1,0 +1,117 @@
+@startuml
+
+' Style du diagramme
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+' Entités principales
+entity "Personne" as personne {
+    * id : INT <<PK>>
+    --
+    * nom : VARCHAR(50)
+    * prenom : VARCHAR(50)
+    * email : VARCHAR(100)
+    * telephone : VARCHAR(20)
+    * type : VARCHAR(20)
+}
+
+entity "Membre" as membre {
+    * id : INT <<PK>>
+    --
+    * date_inscription : DATE
+    * type_abonnement : VARCHAR(20)
+    * actif : BOOLEAN
+    * personne_id : INT <<FK>>
+}
+
+entity "Entraineur" as entraineur {
+    * id : INT <<PK>>
+    --
+    * specialite : VARCHAR(50)
+    * personne_id : INT <<FK>>
+}
+
+entity "Cours" as cours {
+    * id : INT <<PK>>
+    --
+    * nom : VARCHAR(100)
+    * description : TEXT
+    * prix : DECIMAL(10,2)
+    * date_heure : DATETIME
+    * duree : INT
+    * capacite_max : INT
+    * entraineur_id : INT <<FK>>
+}
+
+entity "Equipement" as equipement {
+    * id : INT <<PK>>
+    --
+    * nom : VARCHAR(100)
+    * description : TEXT
+    * etat : VARCHAR(20)
+    * prix : DECIMAL(10,2)
+    * type : VARCHAR(20)
+}
+
+entity "Machine" as machine {
+    * id : INT <<PK>>
+    --
+    * marque : VARCHAR(50)
+    * modele : VARCHAR(50)
+    * annee_fabrication : INT
+    * equipement_id : INT <<FK>>
+}
+
+entity "Accessoire" as accessoire {
+    * id : INT <<PK>>
+    --
+    * categorie : VARCHAR(50)
+    * taille : VARCHAR(20)
+    * couleur : VARCHAR(20)
+    * quantite : INT
+    * equipement_id : INT <<FK>>
+}
+
+entity "Abonnement" as abonnement {
+    * id : INT <<PK>>
+    --
+    * date_debut : DATE
+    * date_fin : DATE
+    * type : VARCHAR(20)
+    * renouvellement_auto : BOOLEAN
+    * membre_id : INT <<FK>>
+}
+
+entity "Notification" as notification {
+    * id : INT <<PK>>
+    --
+    * message : TEXT
+    * date_creation : DATETIME
+    * lue : BOOLEAN
+    * type : VARCHAR(20)
+    * membre_id : INT <<FK>>
+}
+
+entity "Participation" as participation {
+    * id : INT <<PK>>
+    --
+    * cours_id : INT <<FK>>
+    * membre_id : INT <<FK>>
+    * date_participation : DATETIME
+}
+
+' Relations
+personne ||--o{ membre
+personne ||--o{ entraineur
+entraineur ||--o{ cours
+membre ||--o{ abonnement
+membre ||--o{ notification
+equipement ||--o| machine
+equipement ||--o| accessoire
+cours }o--o{ membre : via participation
+
+@enduml 

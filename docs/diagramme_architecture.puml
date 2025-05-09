@@ -1,0 +1,56 @@
+@startuml
+
+' Style du diagramme
+skinparam component {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+}
+
+package "Interface Utilisateur" {
+    [Interface en Ligne de Commande] as CLI
+}
+
+package "Couche Métier" {
+    [GestionSalleSport] as GSS
+    [GestionMembres] as GM
+    [GestionCours] as GC
+    [GestionEquipements] as GE
+    [GestionNotifications] as GN
+    [GestionStatistiques] as GS
+}
+
+package "Couche Données" {
+    database "Base de Données" as DB {
+        [Tables] as Tables
+    }
+    [DAO] as DAO
+}
+
+package "Utilitaires" {
+    [Validation] as Val
+    [Logging] as Log
+    [Configuration] as Config
+}
+
+' Relations
+CLI --> GSS
+GSS --> GM
+GSS --> GC
+GSS --> GE
+GSS --> GN
+GSS --> GS
+
+GM --> DAO
+GC --> DAO
+GE --> DAO
+GN --> DAO
+GS --> DAO
+
+DAO --> DB
+
+GSS --> Val
+GSS --> Log
+GSS --> Config
+
+@enduml 

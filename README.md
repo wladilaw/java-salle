@@ -58,7 +58,8 @@ mvn clean install
 
 3. Exécuter l'application :
 ```bash
-java -jar target/gestion-salle-sport-1.0-SNAPSHOT.jar
+ java -cp target/classes com.salle.GestionSalleSport
+![image](image-1.png)
 ```
 
 ## 💻 Fonctionnalités
