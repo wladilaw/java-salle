@@ -94,3 +94,4 @@ Le projet inclut les diagrammes UML suivants :
 
 - Alexis Derveaux (yxmmy)
 - Jules Machay (wladislawpl)
+- jeremie moukala (denzel)
