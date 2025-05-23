@@ -45,14 +45,23 @@ public class Accessoire extends Equipement {
     }
 
     public void setQuantite(int quantite) {
+        if (quantite < 0) {
+            throw new IllegalArgumentException("La quantité ne peut pas être négative");
+        }
         this.quantite = quantite;
     }
 
     public void incrementerQuantite(int quantite) {
+        if (quantite < 0) {
+            throw new IllegalArgumentException("La quantité à ajouter ne peut pas être négative");
+        }
         this.quantite += quantite;
     }
 
     public boolean decrementerQuantite(int quantite) {
+        if (quantite < 0) {
+            throw new IllegalArgumentException("La quantité à retirer ne peut pas être négative");
+        }
         if (this.quantite >= quantite) {
             this.quantite -= quantite;
             return true;

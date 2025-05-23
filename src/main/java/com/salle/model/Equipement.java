@@ -53,6 +53,9 @@ public class Equipement {
     }
 
     public void setPrix(double prix) {
+        if (prix < 0) {
+            throw new IllegalArgumentException("Le prix ne peut pas être négatif");
+        }
         this.prix = prix;
     }
 

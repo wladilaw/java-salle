@@ -60,7 +60,7 @@ public class GestionSalleSport {
                     break;
                 case 0:
                     continuer = false;
-                    System.out.println("Au revoir !");
+                    System.out.println("salem a bientot !");
                     break;
                 default:
                     System.out.println("Choix invalide. Veuillez réessayer.");

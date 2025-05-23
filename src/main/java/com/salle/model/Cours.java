@@ -35,6 +35,9 @@ public class Cours extends Service {
     }
 
     public void setDuree(int duree) {
+        if (duree < 0) {
+            throw new IllegalArgumentException("La durée ne peut pas être négative");
+        }
         this.duree = duree;
     }
 
@@ -43,6 +46,9 @@ public class Cours extends Service {
     }
 
     public void setCapaciteMax(int capaciteMax) {
+        if (capaciteMax < 0) {
+            throw new IllegalArgumentException("La capacité maximale ne peut pas être négative");
+        }
         this.capaciteMax = capaciteMax;
     }
 
