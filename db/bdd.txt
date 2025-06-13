@@ -1,0 +1,126 @@
+-- Création de la base de données
+CREATE DATABASE IF NOT EXISTS gymdb;
+USE gymdb;
+
+-- Table des personnes
+CREATE TABLE Personne (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nom VARCHAR(50)         NOT NULL,
+  prenom VARCHAR(50)      NOT NULL,
+  email VARCHAR(100)      NOT NULL UNIQUE,
+  telephone VARCHAR(20),
+  type VARCHAR(20)        NOT NULL  -- ex. 'membre', 'entraineur'
+) ENGINE=InnoDB;
+
+-- Table des membres
+CREATE TABLE Membre (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  date_inscription DATE   NOT NULL,
+  type_abonnement VARCHAR(20),
+  actif BOOLEAN           NOT NULL DEFAULT TRUE,
+  personne_id INT         NOT NULL,
+  FOREIGN KEY (personne_id)
+    REFERENCES Personne(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Table des entraîneurs
+CREATE TABLE Entraineur (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  specialite VARCHAR(50),
+  personne_id INT         NOT NULL,
+  FOREIGN KEY (personne_id)
+    REFERENCES Personne(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Table des équipements
+CREATE TABLE Equipement (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nom VARCHAR(100)        NOT NULL,
+  description TEXT,
+  etat VARCHAR(20),
+  prix DECIMAL(10,2),
+  type VARCHAR(20)
+) ENGINE=InnoDB;
+
+-- Table des machines (spécialisation d'équipement)
+CREATE TABLE Machine (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  marque VARCHAR(50),
+  modele VARCHAR(50),
+  annee_fabrication INT,
+  equipement_id INT       NOT NULL,
+  FOREIGN KEY (equipement_id)
+    REFERENCES Equipement(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Table des accessoires (spécialisation d'équipement)
+CREATE TABLE Accessoire (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  categorie VARCHAR(50),
+  taille VARCHAR(20),
+  couleur VARCHAR(20),
+  quantite INT,
+  equipement_id INT       NOT NULL,
+  FOREIGN KEY (equipement_id)
+    REFERENCES Equipement(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Table des cours
+CREATE TABLE Cours (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nom VARCHAR(100)        NOT NULL,
+  description TEXT,
+  prix DECIMAL(10,2),
+  date_heure DATETIME     NOT NULL,
+  duree INT               NOT NULL,  -- en minutes
+  capacite_max INT,
+  entraineur_id INT       NOT NULL,
+  FOREIGN KEY (entraineur_id)
+    REFERENCES Entraineur(id)
+    ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- Table des abonnements
+CREATE TABLE Abonnement (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  date_debut DATE         NOT NULL,
+  date_fin DATE           NOT NULL,
+  type VARCHAR(20),
+  renouvellement_auto BOOLEAN NOT NULL DEFAULT FALSE,
+  membre_id INT           NOT NULL,
+  FOREIGN KEY (membre_id)
+    REFERENCES Membre(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Table des notifications
+CREATE TABLE Notification (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  message TEXT            NOT NULL,
+  date_creation DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lue BOOLEAN             NOT NULL DEFAULT FALSE,
+  type VARCHAR(20),
+  membre_id INT           NOT NULL,
+  FOREIGN KEY (membre_id)
+    REFERENCES Membre(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Table de participation (relation N×N entre cours et membres)
+CREATE TABLE Participation (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  cours_id INT            NOT NULL,
+  membre_id INT           NOT NULL,
+  date_participation DATETIME NOT NULL,
+  FOREIGN KEY (cours_id)
+    REFERENCES Cours(id)
+    ON DELETE CASCADE,
+  FOREIGN KEY (membre_id)
+    REFERENCES Membre(id)
+    ON DELETE CASCADE,
+  UNIQUE KEY ux_participation (cours_id, membre_id) -- empêche doublons
+) ENGINE=InnoDB;
