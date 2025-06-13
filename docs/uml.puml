@@ -1,70 +1,140 @@
 @startuml
 
-' Style du diagramme
+' Style du diagramme optimisé
 skinparam classAttributeIconSize 0
 skinparam class {
     BackgroundColor White
     ArrowColor Black
     BorderColor Black
 }
-
-' Classes abstraites
-abstract class Personne {
-    -id: int
-    -nom: String
-    -prenom: String
-    -email: String
-    -telephone: String
-    +getType(): String
+skinparam interface {
+    BackgroundColor LightYellow
+}
+skinparam abstract {
+    BackgroundColor LightGray
 }
 
-abstract class Service {
-    -id: int
-    -nom: String
-    -description: String
-    -prix: double
-    -actif: boolean
+' ===== INTERFACES (Contrats) =====
+interface IRepository<T> {
+    +create(T entity): T
+    +findById(int id): T
+    +findAll(): List<T>
+    +update(T entity): T
+    +delete(int id): boolean
+}
+
+interface INotificationService {
+    +envoyerNotification(Membre destinataire, String message): void
+    +marquerCommelue(int notificationId): void
+    +obtenirNotificationsNonLues(int membreId): List<Notification>
+}
+
+interface IStatisticsService {
+    +calculerStatistiques(): Statistiques
+    +obtenirRevenuMensuel(): double
+    +obtenirNombreMembresActifs(): int
+}
+
+interface IReservationService {
+    +reserverCours(int membreId, int coursId): boolean
+    +annulerReservation(int participationId): boolean
+    +obtenirReservations(int membreId): List<Participation>
+}
+
+' ===== CLASSES ABSTRAITES =====
+abstract class Personne {
+    #id: int
+    #nom: String
+    #prenom: String
+    #email: String
+    #telephone: String
+    +{abstract} getType(): String
+    +getNomComplet(): String
+    +validerEmail(): boolean
 }
 
 abstract class Equipement {
-    -id: int
-    -nom: String
-    -description: String
-    -etat: String
-    -prix: double
+    #id: int
+    #nom: String
+    #description: String
+    #etat: EtatEquipement
+    #prix: double
+    #dateAchat: LocalDate
+    +{abstract} calculerCoutMaintenance(): double
+    +changerEtat(EtatEquipement nouvelEtat): void
 }
 
-' Interface
-interface IGestionStock {
-    +ajouterEquipement(Equipement equipement): void
-    +supprimerEquipement(int id): void
-    +modifierEquipement(Equipement equipement): void
-    +afficherEquipements(): void
+' ===== ENUMERATIONS =====
+enum EtatEquipement {
+    NEUF
+    BON_ETAT
+    USURE_NORMALE
+    A_REPARER
+    HORS_SERVICE
 }
 
-' Classes concrètes
+enum TypeAbonnement {
+    MENSUEL
+    TRIMESTRIEL
+    ANNUEL
+    ETUDIANT
+}
+
+enum TypeNotification {
+    RESERVATION_CONFIRMEE
+    COURS_ANNULE
+    ABONNEMENT_EXPIRE
+    MAINTENANCE_EQUIPEMENT
+}
+
+' ===== CLASSES MÉTIER =====
 class Membre {
     -dateInscription: LocalDate
-    -typeAbonnement: String
+    -typeAbonnement: TypeAbonnement
     -actif: boolean
+    -abonnementActuel: Abonnement
+    +getType(): String
+    +estAbonnementValide(): boolean
+    +renouvelerAbonnement(): void
 }
 
 class Entraineur {
     -specialite: String
     -certifications: List<String>
-    -coursEnseignes: List<Cours>
-    +ajouterCertification(String): void
-    +ajouterCours(Cours): void
+    -tarifHoraire: double
+    +getType(): String
+    +ajouterCertification(String certification): void
+    +calculerRevenusHebdomadaires(): double
 }
 
 class Cours {
+    -id: int
+    -nom: String
+    -description: String
+    -prix: double
     -dateHeure: LocalDateTime
     -duree: int
     -capaciteMax: int
-    -participants: List<Membre>
     -entraineur: Entraineur
-    +ajouterParticipant(Membre): boolean
-    +retirerParticipant(Membre): boolean
+    +estComplet(): boolean
+    +obtenirPlacesDisponibles(): int
+}
+
+class Participation {
+    -id: int
+    -membre: Membre
+    -cours: Cours
+    -dateReservation: LocalDateTime
+    -statut: StatutParticipation
+    +confirmerParticipation(): void
+    +annulerParticipation(): void
+}
+
+enum StatutParticipation {
+    RESERVEE
+    CONFIRMEE
+    ANNULEE
+    PRESENTE
 }
 
 class Machine {
@@ -72,22 +142,33 @@ class Machine {
     -marque: String
     -modele: String
     -anneeFabrication: int
+    -nombreUtilisationsJour: int
+    +calculerCoutMaintenance(): double
+    +incrementerUtilisation(): void
 }
 
 class Accessoire {
     -categorie: String
     -taille: String
     -couleur: String
-    -quantite: int
-    +incrementerQuantite(int): void
-    +decrementerQuantite(int): boolean
+    -quantiteStock: int
+    -quantiteMinimale: int
+    +calculerCoutMaintenance(): double
+    +verifierStock(): boolean
+    +ajusterStock(int quantite): void
 }
 
 class Abonnement {
+    -id: int
     -dateDebut: LocalDate
     -dateFin: LocalDate
-    -type: String
+    -type: TypeAbonnement
     -renouvellementAuto: boolean
+    -prix: double
+    -membre: Membre
+    +estValide(): boolean
+    +calculerDureeRestante(): int
+    +renouveler(): void
 }
 
 class Notification {
@@ -95,54 +176,89 @@ class Notification {
     -message: String
     -dateCreation: LocalDateTime
     -lue: boolean
-    -type: String
+    -type: TypeNotification
     -destinataire: Membre
+    +marquerCommeLue(): void
+    +estExpire(): boolean
 }
 
 class Statistiques {
+    -dateGeneration: LocalDateTime
     -nombreTotalMembres: int
     -nombreMembresActifs: int
     -nombreCoursTotal: int
-    -nombreCoursAujourdhui: int
-    -equipementsParType: Map<String, Integer>
-    -coursParType: Map<String, Integer>
     -revenuMensuel: double
-    -evenementsRecents: List<String>
-    +mettreAJourStatistiques(): void
-    +ajouterEvenement(String): void
+    -tauxOccupation: double
+    +estAJour(): boolean
 }
 
-class GestionSalleSport {
-    -membres: List<Membre>
-    -entraineurs: List<Entraineur>
-    -cours: List<Cours>
-    -equipements: List<Equipement>
-    -abonnements: List<Abonnement>
-    -notifications: List<Notification>
-    -statistiques: Statistiques
+' ===== SERVICES (Logique métier) =====
+class MembreService {
+    -membreRepository: IRepository<Membre>
+    -notificationService: INotificationService
+    +inscrireMembre(Personne personne): Membre
+    +desactiverMembre(int membreId): void
+    +obtenirMembresActifs(): List<Membre>
 }
 
-' Relations d'héritage
+class CoursService {
+    -coursRepository: IRepository<Cours>
+    -participationRepository: IRepository<Participation>
+    +creerCours(Cours cours): Cours
+    +assignerEntraineur(int coursId, int entraineurId): void
+    +obtenirCoursDisponibles(): List<Cours>
+}
+
+class EquipementService {
+    -equipementRepository: IRepository<Equipement>
+    +ajouterEquipement(Equipement equipement): void
+    +planifierMaintenance(int equipementId): void
+    +obtenirEquipementsDefaillants(): List<Equipement>
+}
+
+' ===== FACADE (Point d'entrée) =====
+class GestionSalleSportFacade {
+    -membreService: MembreService
+    -coursService: CoursService
+    -equipementService: EquipementService
+    -reservationService: IReservationService
+    -statisticsService: IStatisticsService
+    +inscrireMembre(Personne personne): Membre
+    +reserverCours(int membreId, int coursId): boolean
+    +obtenirStatistiques(): Statistiques
+}
+
+' ===== RELATIONS D'HÉRITAGE =====
 Personne <|-- Membre
 Personne <|-- Entraineur
-Service <|-- Cours
 Equipement <|-- Machine
 Equipement <|-- Accessoire
 
-' Relations d'implémentation
-GestionSalleSport ..|> IGestionStock
+' ===== RELATIONS D'IMPLÉMENTATION =====
+MembreService ..|> IRepository
+CoursService ..|> IRepository
+EquipementService ..|> IRepository
 
-' Relations d'association
-GestionSalleSport "1" *-- "0..*" Membre
-GestionSalleSport "1" *-- "0..*" Entraineur
-GestionSalleSport "1" *-- "0..*" Cours
-GestionSalleSport "1" *-- "0..*" Equipement
-GestionSalleSport "1" *-- "0..*" Abonnement
-GestionSalleSport "1" *-- "0..*" Notification
-GestionSalleSport "1" *-- "1" Statistiques
+' ===== RELATIONS D'ASSOCIATION =====
+Membre ||--o{ Abonnement
+Membre ||--o{ Notification
+Membre ||--o{ Participation
+Entraineur ||--o{ Cours
+Cours ||--o{ Participation
+Equipement ||-- EtatEquipement
+Membre ||-- TypeAbonnement
+Notification ||-- TypeNotification
+Participation ||-- StatutParticipation
 
-Cours "1" *-- "1" Entraineur
-Cours "1" *-- "0..*" Membre
-Notification "1" *-- "1" Membre
+' ===== COMPOSITION ET AGGREGATION =====
+GestionSalleSportFacade *-- MembreService
+GestionSalleSportFacade *-- CoursService
+GestionSalleSportFacade *-- EquipementService
+GestionSalleSportFacade o-- IReservationService
+GestionSalleSportFacade o-- IStatisticsService
+
+' ===== DÉPENDANCES =====
+MembreService ..> INotificationService
+CoursService ..> IReservationService
 
 @enduml 

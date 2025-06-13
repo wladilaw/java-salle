@@ -8,7 +8,12 @@ skinparam class {
     BorderColor Black
 }
 
-' Entités principales
+' ===== ENTITÉS PRINCIPALES =====
+' Les ID sont de type INT avec PK car :
+' - INT : Type numérique performant pour les jointures
+' - PK : Clé primaire unique pour identifier chaque enregistrement
+' - AUTO_INCREMENT implicite pour génération automatique
+
 entity "Personne" as personne {
     * id : INT <<PK>>
     --
@@ -104,14 +109,31 @@ entity "Participation" as participation {
     * date_participation : DATETIME
 }
 
-' Relations
-personne ||--o{ membre
-personne ||--o{ entraineur
-entraineur ||--o{ cours
-membre ||--o{ abonnement
-membre ||--o{ notification
-equipement ||--o| machine
-equipement ||--o| accessoire
-cours }o--o{ membre : via participation
+' ===== RELATIONS ORCHESTRÉES =====
+' Relations 1:N (One-to-Many)
+personne ||--o{ membre : "1 personne peut être membre"
+personne ||--o{ entraineur : "1 personne peut être entraineur"
+entraineur ||--o{ cours : "1 entraineur donne plusieurs cours"
+membre ||--o{ abonnement : "1 membre a plusieurs abonnements"
+membre ||--o{ notification : "1 membre reçoit plusieurs notifications"
+
+' Relations d'héritage (Spécialisation)
+equipement ||--o| machine : "Machine hérite d'Equipement"
+equipement ||--o| accessoire : "Accessoire hérite d'Equipement"
+
+' Relations Many-to-Many via table de liaison
+cours ||--o{ participation : "1 cours a plusieurs participations"
+membre ||--o{ participation : "1 membre a plusieurs participations"
+
+' ===== RÉSUMÉ DES FOREIGN KEYS =====
+' membre.personne_id → personne.id
+' entraineur.personne_id → personne.id  
+' cours.entraineur_id → entraineur.id
+' machine.equipement_id → equipement.id
+' accessoire.equipement_id → equipement.id
+' abonnement.membre_id → membre.id
+' notification.membre_id → membre.id
+' participation.cours_id → cours.id
+' participation.membre_id → membre.id
 
 @enduml 
